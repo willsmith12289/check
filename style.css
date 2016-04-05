@@ -1,0 +1,32 @@
+table {
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+table tr {
+  height: 70px;
+}
+table tr td {
+  width: 70px;
+}
+.black {
+  background-color: black;
+}
+.white {
+  background-color: white;
+}
+.circle {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  margin-left: 5px;
+}
+.red {
+  background-color: red;
+}
+.black {
+  background-color: black;
+  border: 1px solid white;
+}
+.active {
+  border: 2px solid yellow;
+}
