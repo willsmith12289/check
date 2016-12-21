@@ -1,76 +1,79 @@
-$(document).ready(function()
-{
-	/**
-	*
-	*Creates the chess board
-	*
-	*/
-  $("#one td:odd").addClass('white');
-  $("#one td:even").addClass('black');
+var $ = function (id) {
+	return document.getElementById(id);
+};
 
-  $("#two td:even").addClass('white');
-  $("#two td:odd").addClass('black');
-
-  $("#three td:odd").addClass('white');
-  $("#three td:even").addClass('black');
-
-  $("#four td:even").addClass('white');
-  $("#four td:odd").addClass('black');
-
-  $("#five td:odd").addClass('white');
-  $("#five td:even").addClass('black');
-
-  $("#six td:even").addClass('white');
-  $("#six td:odd").addClass('black');
-
-  $("#seven td:odd").addClass('white');
-  $("#seven td:even").addClass('black');
-
-  $("#eight td:even").addClass('white');
-  $("#eight td:odd").addClass('black');
-
-/*
-**
-*adds class active to circle playing pieces
-*
-*/
-  $('.circle').click(function() {
-  	$('.active').removeClass('active');
-  	$(this).addClass('active');
-
-  })
-/*
-*
-*finds class(white or black)of cell origen and destination and only allows moves *if they are the same 
-*
-*/
-  $('td').click(function() {
-  	var cellClass = $('.active').parent().attr('class');
-    var firstIndex = $(this).index();
-      var indexP = firstIndex + 1;
-      var indexM = firstIndex - 1;
-      $('td').click(function() {
-        secIndex = $(this).index();
-        if(cellClass == $(this).attr('class')){
-          if (secIndex == indexP) {
-            $('.active').appendTo(this);
-            }else{
-              if (secIndex == indexM) {
-                $('.active').appendTo(this);
-              }
-            }  
-
-          }
-
-      });
-
-  });
-   $('.circle').click(function(){
-              if ($(this).attr('class') == ("circle")) {
-                $(this).remove();
-              }
-            });
+var canvas = $("myCanvas"),
+placeSize = 50,
+boardSize = placeSize*8,
+pieces = new Array();
 
 
-});
+window.onload = function () {
+	drawBoard();
+	drawPieces();
+}
+function piece (x,y,k,c) {
+	//used for keeping track of pieces on board
+	this.col = x;
+	this.row = y;
+	this.king = k;
+	this.color = c
+}
+function drawBoard () {
+	var ctx = canvas.getContext('2d');
+	for (var row = 0; row <= 8; row++) {
+		for (var column = 0; column <= 8; column++) {
+			var x = column * 50;
+			var y = row * 25;
 
+			if (row % 2 == 0) {
+				if (column % 2 == 0) {
+					ctx.fillStyle = "black";
+				}
+				else {
+					ctx.fillStyle = "white";
+				}
+			} else {
+				if (column % 2 == 0) {
+					ctx.fillStyle = "white";
+				} else {
+					ctx.fillStyle = "black";
+				}
+			}
+  		ctx.fillRect(x, y, 50, 25);
+		}
+	}
+};
+
+function drawPieces () {
+	var ctx = canvas.getContext('2d');
+
+	for (var row = 0; row <= 8; row++) {
+		for (var column = 0; column <= 8; column++) {
+			var x = column * 50;
+			var y = row * 25;
+
+			if (row <= 3 && row % 2 == 0) {
+				if (column % 2 == 0) {
+					ctx.fillStyle = "black";
+					ctx.beginPath();
+					ctx.arc(x+25, y+12.5, 10, 0, 2 * Math.PI);
+					ctx.stroke();
+					ctx.fill();
+				}
+			}else if (row >= 7) {
+				if (column %2 == 0)
+				}
+					ctx.fillStyle = "red";
+				}
+			} else {
+				if (column % 2 == 0) {
+					ctx.fillStyle = "red";
+				} else {
+					ctx.fillStyle = "black";
+				}
+			}
+			
+		}
+	}
+};
