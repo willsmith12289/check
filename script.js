@@ -15,6 +15,7 @@ window.onload = function () {
 	drawBoard();
 	drawYellow();
 	drawRed();
+	canvas.onclick = findPiece;
 }
 function piece(x,y,k,c, id) {
 	//used for keeping track of pieces on board
@@ -71,7 +72,7 @@ function drawYellow () {
 				ctx.stroke();
 				ctx.fill();
 				id += 1;
-				yellowPieces.push(new piece(column, row, false, "yellow", id));
+				yellowPieces.push(new piece((x-25), (y-25), false, "yellow", id));
 				var p = document.createElement("span");
 				p.setAttribute("id", `y${id}`)
 				canvas.appendChild(p);
@@ -100,35 +101,19 @@ function drawRed() {
 				ctx.stroke();
 				ctx.fill();
 				id += 1;
-				redPieces.push(new piece(column, row, false, "red", id));
+				redPieces.push(new piece((x-25), (y-25), false, "red", id));
 				var p = document.createElement("span");
 				p.setAttribute("id", `r${id}`)
 				canvas.appendChild(p);
 		}
 	}
 };
-	// 		if (row % 2 == 0) {
-	// 			if (column % 2 == 0) {
-	// 				ctx.fillStyle = "yellow";
-	// 			}
-	// 			else {
-	// 				ctx.fillStyle = "red";
-	// 			}
-	// 		} else {
-	// 			if (column % 2 == 0) {
-	// 				ctx.fillStyle = "red";
-	// 			} else {
-	// 				ctx.fillStyle = "yellow";
-	// 			}
-	// 		}
-	// 		if (ctx.fillStyle == "yellow" && row <= 3) {
-	// 			ctx.beginPath();
-	// 			ctx.arc(x -25, y - 25, 20, 0, 2 * Math.PI);
-	// 			ctx.stroke();
-	// 			ctx.fill();
-	// 		} else if (ctx.fillStyle == "red" {
 
-	// 		}
-	// 	}
-	// }
 
+function findPiece() {
+	var canvasCoords = canvas.getBoundingClientRect();
+	var xClicked = event.clientX - canvasCoords.left;
+	var yClicked = event.clientY - canvasCoords.top;
+	console.log("xclicked:" + x, "yclicked:" + y);
+	if (true) {}
+}
