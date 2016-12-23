@@ -9,6 +9,8 @@ pieces = new Array();
 
 
 window.onload = function () {
+	canvas.setAttribute('height', 400);
+	canvas.setAttribute('width', 400);
 	drawBoard();
 	drawPieces();
 }
@@ -23,8 +25,8 @@ function drawBoard () {
 	var ctx = canvas.getContext('2d');
 	for (var row = 0; row <= 8; row++) {
 		for (var column = 0; column <= 8; column++) {
-			var x = column * 50;
-			var y = row * 25;
+			var x = column * placeSize;
+			var y = row * placeSize;
 
 			if (row % 2 == 0) {
 				if (column % 2 == 0) {
@@ -40,40 +42,54 @@ function drawBoard () {
 					ctx.fillStyle = "black";
 				}
 			}
-  		ctx.fillRect(x, y, 50, 25);
+  		ctx.fillRect(x, y, placeSize, placeSize);
 		}
 	}
 };
 
 function drawPieces () {
 	var ctx = canvas.getContext('2d');
-
 	for (var row = 0; row <= 8; row++) {
 		for (var column = 0; column <= 8; column++) {
-			var x = column * 50;
-			var y = row * 25;
-
-			if (row <= 3 && row % 2 == 0) {
-				if (column % 2 == 0) {
-					ctx.fillStyle = "black";
-					ctx.beginPath();
-					ctx.arc(x+25, y+12.5, 10, 0, 2 * Math.PI);
-					ctx.stroke();
-					ctx.fill();
+			var x = column * placeSize;
+			var y = row * placeSize;
+			if ((row % 2 == 0) && (column % 2 == 0) ) {
+				if ((row > 1) && (row < 3)) {
+					ctx.fillStyle = "yellow";
 				}
-			}else if (row >= 7) {
-				if (column %2 == 0)
-				}
+				if( row >= 6) {
 					ctx.fillStyle = "red";
 				}
-			} else {
-				if (column % 2 == 0) {
-					ctx.fillStyle = "red";
-				} else {
-					ctx.fillStyle = "black";
-				}
+				ctx.beginPath();
+				ctx.arc(x -25, y - 25, 20, 0, 2 * Math.PI);
+				ctx.stroke();
+				ctx.fill();
 			}
-			
 		}
 	}
-};
+}
+	// 		if (row % 2 == 0) {
+	// 			if (column % 2 == 0) {
+	// 				ctx.fillStyle = "yellow";
+	// 			}
+	// 			else {
+	// 				ctx.fillStyle = "red";
+	// 			}
+	// 		} else {
+	// 			if (column % 2 == 0) {
+	// 				ctx.fillStyle = "red";
+	// 			} else {
+	// 				ctx.fillStyle = "yellow";
+	// 			}
+	// 		}
+	// 		if (ctx.fillStyle == "yellow" && row <= 3) {
+	// 			ctx.beginPath();
+	// 			ctx.arc(x -25, y - 25, 20, 0, 2 * Math.PI);
+	// 			ctx.stroke();
+	// 			ctx.fill();
+	// 		} else if (ctx.fillStyle == "red" {
+
+	// 		}
+	// 	}
+	// }
+
