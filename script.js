@@ -5,6 +5,7 @@ var $ = function (id) {
 var canvas = $("myCanvas"),
 placeSize = 50,
 boardSize = placeSize*8,
+Pieces = new Array(),
 yellowPieces = new Array(),
 redPieces = new Array();
 
@@ -15,14 +16,14 @@ window.onload = function () {
 	drawBoard();
 	drawYellow();
 	drawRed();
-	canvas.onclick = findPiece;
+	canvas.onclick = findClick;
 }
 function piece(x,y,k,c, id) {
 	//used for keeping track of pieces on board
-	this.col = x;
-	this.row = y;
+	this.centerX = x;
+	this.centerY = y;
 	this.king = k;
-	this.color = c
+	this.color = c;
 	this.id = id;
 }
 function drawBoard () {
@@ -72,7 +73,8 @@ function drawYellow () {
 				ctx.stroke();
 				ctx.fill();
 				id += 1;
-				yellowPieces.push(new piece((x-25), (y-25), false, "yellow", id));
+				var circleY = new piece((x-25), (y-25), false, "yellow", id);
+				Pieces.push(circleY);
 				var p = document.createElement("span");
 				p.setAttribute("id", `y${id}`)
 				canvas.appendChild(p);
@@ -101,7 +103,8 @@ function drawRed() {
 				ctx.stroke();
 				ctx.fill();
 				id += 1;
-				redPieces.push(new piece((x-25), (y-25), false, "red", id));
+				var circleX = new piece((x-25), (y-25), false, "red", id);
+				Pieces.push(circleX);
 				var p = document.createElement("span");
 				p.setAttribute("id", `r${id}`)
 				canvas.appendChild(p);
@@ -110,10 +113,24 @@ function drawRed() {
 };
 
 
-function findPiece() {
+function findClick() {
 	var canvasCoords = canvas.getBoundingClientRect();
 	var xClicked = event.clientX - canvasCoords.left;
 	var yClicked = event.clientY - canvasCoords.top;
-	console.log("xclicked:" + x, "yclicked:" + y);
-	if (true) {}
-}
+	console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
+	findPiece(xClicked,yClicked);
+};
+
+function findPiece(xClicked, yClicked) {
+	var radius = 20;
+	for (var i = 0; i <= Pieces.length; i++) {
+		var piece = Pieces[i],
+				pieceX = piece.centerX,
+				pieceY = piece.centerY;
+				console.log(pieceY);
+				console.log(pieceX)
+		if (Math.sqrt((pieceX - xClicked) * (pieceX - xClicked) + (pieceY - yClicked) * (pieceY - yClicked)) < radius) {
+			console.log("within piece");
+		} else { continue; }
+	}
+};
