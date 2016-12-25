@@ -125,12 +125,23 @@ function findPiece(xClicked, yClicked) {
 	var radius = 20;
 	for (var i = 0; i <= Pieces.length; i++) {
 		var piece = Pieces[i],
-				pieceX = piece.centerX,
-				pieceY = piece.centerY;
-				console.log(pieceY);
-				console.log(pieceX)
-		if (Math.sqrt((pieceX - xClicked) * (pieceX - xClicked) + (pieceY - yClicked) * (pieceY - yClicked)) < radius) {
+				centerX = piece.centerX,
+				centerY = piece.centerY;
+				// console.log(centerY);
+				// console.log(centerX);
+		if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
 			console.log("within piece");
+
+			selectPiece(piece);
 		} else { continue; }
 	}
 };
+
+function selectPiece(piece) {
+	var ctx = canvas.getContext('2d');
+	ctx.fillStyle = "green";
+	ctx.beginPath();
+	ctx.arc(piece.centerX, piece.centerY, 20, 0, 2 * Math.PI);
+	ctx.stroke();
+	ctx.fill();
+}
