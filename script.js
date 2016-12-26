@@ -16,7 +16,14 @@ window.onload = function () {
 	drawBoard();
 	drawYellow();
 	drawRed();
-	canvas.onclick = findClick;
+	canvas.onclick = function() {
+		var coords = findClick();
+		var xClicked = coords[0];
+		var yClicked = coords[1];
+		if (findPiece(xClicked, yClicked)) {
+			movePiece();
+		}
+	};
 }
 function piece(x,y,k,c, id) {
 	//used for keeping track of pieces on board
@@ -118,7 +125,7 @@ function findClick() {
 	var xClicked = event.clientX - canvasCoords.left;
 	var yClicked = event.clientY - canvasCoords.top;
 	console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
-	findPiece(xClicked,yClicked);
+	return [xClicked, yClicked];
 };
 
 function findPiece(xClicked, yClicked) {
@@ -127,21 +134,33 @@ function findPiece(xClicked, yClicked) {
 		var piece = Pieces[i],
 				centerX = piece.centerX,
 				centerY = piece.centerY;
-				// console.log(centerY);
-				// console.log(centerX);
+		//distance equation determines if clicked point is within circle
 		if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
 			console.log("within piece");
-
-			selectPiece(piece);
-		} else { continue; }
+			//changes color of clicked piece
+			var ctx = canvas.getContext('2d');
+			ctx.fillStyle = "green";
+			ctx.beginPath();
+			ctx.arc(piece.centerX, piece.centerY, 20, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.fill();
+			return true;
+		} else { 
+			return false;
+			continue; }
 	}
 };
 
-function selectPiece(piece) {
-	var ctx = canvas.getContext('2d');
-	ctx.fillStyle = "green";
-	ctx.beginPath();
-	ctx.arc(piece.centerX, piece.centerY, 20, 0, 2 * Math.PI);
-	ctx.stroke();
-	ctx.fill();
-}
+function movePiece(piece) {
+	canvas.ondblclick = function() {
+		var coords = findClick();
+		var x = coords[0];
+		var y = coords[1];
+		var ctx = canvas.getContext('2d');
+			ctx.fillStyle = "green";
+			ctx.beginPath();
+			ctx.arc(x, y, 20, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.fill();
+	}	
+};
