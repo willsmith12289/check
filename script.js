@@ -5,38 +5,33 @@ var $ = function (id) {
 var canvas = $("myCanvas"),
 ctx = canvas.getContext('2d'),
 placeSize = 50,
-boardSize = placeSize*8,
-Pieces = new Array(),
-yellowPieces = new Array(),
-redPieces = new Array();
-
-
+boardSize = placeSize*8;
+var whosTurn = 'black';
+var Pieces = new Array();
 window.onload = function () {
+	var Pieces = new Array();
 	canvas.setAttribute('height', 400);
 	canvas.setAttribute('width', 400);
 	drawBoard();
-	drawYellow();
-	drawRed();
-	var thisPiece;
 	canvas.onclick = function() {
 		var coords = findClick();
 		var xClicked = coords[0];
 		var yClicked = coords[1];
 		thisPiece = findPiece(xClicked, yClicked);
-		canvas.ondblclick = function() {
-			removePiece(thisPiece);
-			movePiece(thisPiece);
-		}
+		console.log(thisPiece);
+		removePiece(thisPiece);
 	};
-}
-function piece(x,y,k,c, id) {
+
+};
+
+function piece(x,y,k,c) {
 	//used for keeping track of pieces on board
-	this.centerX = x;
-	this.centerY = y;
+	this.row = x;
+	this.column = y;
 	this.king = k;
 	this.color = c;
-	this.id = id;
-}
+};
+
 function drawBoard () {
 	var ctx = canvas.getContext('2d');
 	for (var row = 0; row <= 8; row++) {
@@ -61,106 +56,85 @@ function drawBoard () {
   		ctx.fillRect(x, y, placeSize, placeSize);
 		}
 	}
+	makePieces();
+	drawPieces();
 };
 
-function drawYellow () {
-	var ctx = canvas.getContext('2d');
-	var id = 0
-	for (var row = 1; row <= 3; row++) {
-		for (var column = 1; column <= 8; column++) {
-			var x = column * placeSize;
-			var y = row * placeSize;
-			if (row % 2 == 0) {
-				if (column % 2 == 0) {
-					ctx.fillStyle = "yellow";
-				} else {continue;}
-			} else {
-				if (column % 2 != 0) {
-					ctx.fillStyle = "yellow";
-				} else { continue; }
-			}
-				ctx.beginPath();
-				ctx.arc(x -25, y - 25, 20, 0, 2 * Math.PI);
-				ctx.stroke();
-				ctx.fill();
-				id += 1;
-				var circleY = new piece((x-25), (y-25), false, "yellow", id);
-				Pieces.push(circleY);
-				var p = document.createElement("span");
-				p.setAttribute("id", `y${id}`)
-				canvas.appendChild(p);
-		}
-	}
+function makePieces() {
+	//initializes pieces in rows and columns
+	for (var row = 1; row < 9; row++) {
+		for ( var column = 1; column < 9; column+=2) {
+			if (row < 4) {
+				if (row % 2 == 1) {
+					Pieces.push(new piece(row, column, false, "yellow"));
+				} else {
+					Pieces.push(new piece(row, column + 1, false, "yellow"));
+				}
+				
+			} else if (row > 5) {
+				if (row % 2 == 1) {
+					Pieces.push(new piece(row, column, false, "red"));
+				} else {
+					Pieces.push(new piece(row, column + 1, false, "red"));
+				}
+			};
+		};
+	};
 };
 
-function drawRed() {
-	var ctx = canvas.getContext('2d'),
-	id = 0;
-	for (var row = 6; row <= 8; row++) {
-		for (var column = 0; column <= 8; column++) {
-			var x = column * placeSize;
-			var y = row * placeSize;
-			if (row % 2 == 0) {
-				if (column % 2 == 0) {
-					ctx.fillStyle = "red";
-				} else {continue;}
-			} else {
-				if (column % 2 != 0) {
-					ctx.fillStyle = "red";
-				} else { continue; }
-			}
-				ctx.beginPath();
-				ctx.arc(x -25, y - 25, 20, 0, 2 * Math.PI);
-				ctx.stroke();
-				ctx.fill();
-				id += 1;
-				var circleX = new piece((x-25), (y-25), false, "red", id);
-				Pieces.push(circleX);
-				var p = document.createElement("span");
-				p.setAttribute("id", `r${id}`)
-				canvas.appendChild(p);
-		}
-	}
+function drawPieces() {
+	for (var i = 0; i < Pieces.length; i++) {
+		ctx.beginPath();
+		ctx.arc((Pieces[i].column * placeSize) - 25, (Pieces[i].row * placeSize) - 25, 20, 0, 2 * Math.PI);
+		ctx.stroke();
+		var color = Pieces[i].color;
+		ctx.fillStyle = color;
+		ctx.fill();
+	};
 };
 
 
 function findClick() {
-	var canvasCoords = canvas.getBoundingClientRect();
-	var xClicked = event.clientX - canvasCoords.left;
-	var yClicked = event.clientY - canvasCoords.top;
-	console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
-	return [xClicked, yClicked];
+		var canvasCoords = canvas.getBoundingClientRect();
+		var xClicked = event.clientX - canvasCoords.left;
+		var yClicked = event.clientY - canvasCoords.top;
+		console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
+		//findPiece(xClicked, yClicked);
+		return [xClicked, yClicked];
 };
 
 function findPiece(xClicked, yClicked) {
 	var radius = 20;
-	for (var i = 0; i <= Pieces.length; i++) {
+	for (var i = 0; i < Pieces.length; i++) {
+			var centerX = (Pieces[i].column * placeSize) - 25;
+			var centerY = (Pieces[i].row * placeSize) - 25;
 			var thisPiece = Pieces[i];
-				console.log(Pieces[i].centerX);
+
 		//distance equation determines if clicked point is within circle
-			if (Math.sqrt((thisPiece.centerX - xClicked) * (thisPiece.centerX - xClicked) + (thisPiece.centerY - yClicked) * (thisPiece.centerY - yClicked)) < radius) {
+			if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
 				console.log("within piece");
 				//changes color of clicked piece
-				color(thisPiece);
+				color(centerX, centerY);
+				//console.log(thisPiece);
 				return thisPiece;
 			} else { 
 				continue; }
 	}
 };
-function color(piece) {
+function color(x, y) {
 	ctx.fillStyle = "green";
 	ctx.beginPath();
-	ctx.arc(piece.centerX, piece.centerY, 20, 0, 2 * Math.PI);
+	ctx.arc(x, y, 20, 0, 2 * Math.PI);
 	ctx.stroke();
 	ctx.fill();
 }
-function movePiece(piece) {
+function movePiece(thisPiece) {
 		var newCoords = findClick();
 		newX = newCoords[0];
 		newY = newCoords[1];
 		piece.centerX = newX;
 		piece.centerY = newY;
-		var color = piece.color;
+		var color = thisPiece.color;
 		ctx.fillStyle = color;
 		ctx.beginPath();
 		ctx.arc(newX, newY, 20, 0, 2 * Math.PI);
@@ -168,12 +142,16 @@ function movePiece(piece) {
 		ctx.fill();
 };
 
-function removePiece(piece) {
-	if (findPiece) {
+function removePiece(thisPiece) {
+		
+		var centerX = (thisPiece.row * placeSize) - 25;
+		var centerY = (thisPiece.column * placeSize) - 25;
 		ctx.fillStyle = "black";
 			ctx.beginPath();
-			ctx.arc(piece.centerX, piece.centerY, 20, 0, 2 * Math.PI);
+			ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
 			ctx.stroke();
 			ctx.fill();
-	}
-}
+};
+// function whosTurn() {
+// 	if {}
+// }
