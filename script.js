@@ -17,11 +17,16 @@ window.onload = function () {
 	drawBoard();
 	drawYellow();
 	drawRed();
+	var thisPiece;
 	canvas.onclick = function() {
 		var coords = findClick();
 		var xClicked = coords[0];
 		var yClicked = coords[1];
-		var thisPiece = findPiece(xClicked, yClicked);
+		thisPiece = findPiece(xClicked, yClicked);
+		canvas.ondblclick = function() {
+			removePiece(thisPiece);
+			movePiece(thisPiece);
+		}
 	};
 }
 function piece(x,y,k,c, id) {
@@ -150,17 +155,17 @@ function color(piece) {
 	ctx.fill();
 }
 function movePiece(piece) {
-	var coords = findClick();
-	var x = coords[0];
-	var y = coords[1];
-	if(findPiece(piece)) {
-		removePiece(piece);
-		ctx.fillStyle = "green";
+		var newCoords = findClick();
+		newX = newCoords[0];
+		newY = newCoords[1];
+		piece.centerX = newX;
+		piece.centerY = newY;
+		var color = piece.color;
+		ctx.fillStyle = color;
 		ctx.beginPath();
-		ctx.arc(x, y, 20, 0, 2 * Math.PI);
+		ctx.arc(newX, newY, 20, 0, 2 * Math.PI);
 		ctx.stroke();
 		ctx.fill();
-	}
 };
 
 function removePiece(piece) {
