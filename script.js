@@ -3,6 +3,7 @@ var $ = function (id) {
 };
 
 var canvas = $("myCanvas"),
+ctx = canvas.getContext('2d'),
 placeSize = 50,
 boardSize = placeSize*8,
 Pieces = new Array(),
@@ -20,9 +21,7 @@ window.onload = function () {
 		var coords = findClick();
 		var xClicked = coords[0];
 		var yClicked = coords[1];
-		if (findPiece(xClicked, yClicked)) {
-			movePiece();
-		}
+		var thisPiece = findPiece(xClicked, yClicked);
 	};
 }
 function piece(x,y,k,c, id) {
@@ -131,36 +130,45 @@ function findClick() {
 function findPiece(xClicked, yClicked) {
 	var radius = 20;
 	for (var i = 0; i <= Pieces.length; i++) {
-		var piece = Pieces[i],
-				centerX = piece.centerX,
-				centerY = piece.centerY;
+			var thisPiece = Pieces[i];
+				console.log(Pieces[i].centerX);
 		//distance equation determines if clicked point is within circle
-		if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
-			console.log("within piece");
-			//changes color of clicked piece
-			var ctx = canvas.getContext('2d');
-			ctx.fillStyle = "green";
+			if (Math.sqrt((thisPiece.centerX - xClicked) * (thisPiece.centerX - xClicked) + (thisPiece.centerY - yClicked) * (thisPiece.centerY - yClicked)) < radius) {
+				console.log("within piece");
+				//changes color of clicked piece
+				color(thisPiece);
+				return thisPiece;
+			} else { 
+				continue; }
+	}
+};
+function color(piece) {
+	ctx.fillStyle = "green";
+	ctx.beginPath();
+	ctx.arc(piece.centerX, piece.centerY, 20, 0, 2 * Math.PI);
+	ctx.stroke();
+	ctx.fill();
+}
+function movePiece(piece) {
+	var coords = findClick();
+	var x = coords[0];
+	var y = coords[1];
+	if(findPiece(piece)) {
+		removePiece(piece);
+		ctx.fillStyle = "green";
+		ctx.beginPath();
+		ctx.arc(x, y, 20, 0, 2 * Math.PI);
+		ctx.stroke();
+		ctx.fill();
+	}
+};
+
+function removePiece(piece) {
+	if (findPiece) {
+		ctx.fillStyle = "black";
 			ctx.beginPath();
 			ctx.arc(piece.centerX, piece.centerY, 20, 0, 2 * Math.PI);
 			ctx.stroke();
 			ctx.fill();
-			return true;
-		} else { 
-			return false;
-			continue; }
 	}
-};
-
-function movePiece(piece) {
-	canvas.ondblclick = function() {
-		var coords = findClick();
-		var x = coords[0];
-		var y = coords[1];
-		var ctx = canvas.getContext('2d');
-			ctx.fillStyle = "green";
-			ctx.beginPath();
-			ctx.arc(x, y, 20, 0, 2 * Math.PI);
-			ctx.stroke();
-			ctx.fill();
-	}	
-};
+}
