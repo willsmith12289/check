@@ -165,8 +165,8 @@ function movePiece(firstPiece) {
 			ctx.stroke();
 			ctx.fill();
 			removePiece(firstPiece);
-			firstPiece.row = Math.ceil(newRow/placeSize);
-			firstPiece.column = Math.ceil(newColumn/placeSize);
+			firstPiece.row = Math.ceil(newColumn/placeSize);
+			firstPiece.column = Math.ceil(newRow/placeSize);
 			console.log(firstPiece.row);
 			console.log(firstPiece.column);
 };
