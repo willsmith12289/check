@@ -8,18 +8,39 @@ placeSize = 50,
 boardSize = placeSize*8;
 var whosTurn = 'black';
 var Pieces = new Array();
+var click = [];
 window.onload = function () {
 	var Pieces = new Array();
 	canvas.setAttribute('height', 400);
 	canvas.setAttribute('width', 400);
 	drawBoard();
+	
 	canvas.onclick = function() {
-		var coords = findClick();
-		var xClicked = coords[0];
-		var yClicked = coords[1];
-		thisPiece = findPiece(xClicked, yClicked);
-		console.log(thisPiece);
-		removePiece(thisPiece);
+		click.push(findClick());
+		var coord = click[0],
+		coordX = coord[0],
+		coordY = coord[1];
+		var myPiece = findPiece(coord[0], coord[1]);
+		if(myPiece) {
+			color(myPiece);
+
+			}
+		// }else {
+		// 	movePiece(myPiece)
+		// };
+	};
+		// var xClicked = coords[0];
+		// var yClicked = coords[1];
+		// findPiece(xClicked, yClicked);
+	canvas.ondblclick = function() {
+		var coord = click[0],
+		coordX = coord[0],
+		coordY = coord[1];
+		var firstPiece = findPiece(coordX, coordY);
+		console.log(firstPiece);
+		removePiece(firstPiece);
+		movePiece(firstPiece);
+		click = [];
 	};
 
 };
@@ -114,38 +135,45 @@ function findPiece(xClicked, yClicked) {
 			if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
 				console.log("within piece");
 				//changes color of clicked piece
-				color(centerX, centerY);
+				//color(centerX, centerY);
 				//console.log(thisPiece);
 				return thisPiece;
 			} else { 
 				continue; }
 	}
 };
-function color(x, y) {
-	ctx.fillStyle = "green";
-	ctx.beginPath();
-	ctx.arc(x, y, 20, 0, 2 * Math.PI);
-	ctx.stroke();
-	ctx.fill();
-}
-function movePiece(thisPiece) {
-		var newCoords = findClick();
-		newX = newCoords[0];
-		newY = newCoords[1];
-		piece.centerX = newX;
-		piece.centerY = newY;
-		var color = thisPiece.color;
-		ctx.fillStyle = color;
+function color(piece) {
+	if(piece){
+		var x = (piece.column * placeSize) - 25;
+		var y = (piece.row * placeSize) - 25;
+		ctx.fillStyle = "green";
 		ctx.beginPath();
-		ctx.arc(newX, newY, 20, 0, 2 * Math.PI);
+		ctx.arc(x, y, 20, 0, 2 * Math.PI);
 		ctx.stroke();
 		ctx.fill();
+	};
+};
+function movePiece(firstPiece) {
+			var newCoords = click[1];
+			console.log(newCoords[0]);
+			newX = newCoords[1]
+			newY = newCoords[0];
+			var color = firstPiece.color;
+			ctx.fillStyle = color;
+			ctx.beginPath();
+			ctx.arc(newCoords[0], newCoords[1], 20, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.fill();
+			removePiece(firstPiece);
+			firstPiece.row = Math.floor((newX + 25)/placeSize);
+			firstPiece.column = Math.floor((newY+25)/placeSize);
+			console.log("row " + firstPiece.row);
 };
 
-function removePiece(thisPiece) {
-		
-		var centerX = (thisPiece.row * placeSize) - 25;
-		var centerY = (thisPiece.column * placeSize) - 25;
+function removePiece(firstPiece) {
+		var centerX = (firstPiece.column * placeSize) - 25;
+		console.log(centerX);
+		var centerY = (firstPiece.row * placeSize) - 25;
 		ctx.fillStyle = "black";
 			ctx.beginPath();
 			ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
