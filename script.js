@@ -154,20 +154,21 @@ function color(piece) {
 	};
 };
 function movePiece(firstPiece) {
-			var newCoords = click[1];
-			console.log(newCoords[0]);
-			newX = newCoords[1]
-			newY = newCoords[0];
+	//gets coords of doubleclick and centers 
+			var newCoords = centerMove();
+			var newRow = newCoords[1]-25;
+			var newColumn = newCoords[0]-25;
 			var color = firstPiece.color;
 			ctx.fillStyle = color;
 			ctx.beginPath();
-			ctx.arc(newCoords[0], newCoords[1], 20, 0, 2 * Math.PI);
+			ctx.arc(newRow, newColumn, 20, 0, 2 * Math.PI);
 			ctx.stroke();
 			ctx.fill();
 			removePiece(firstPiece);
-			firstPiece.row = Math.floor((newX + 25)/placeSize);
-			firstPiece.column = Math.floor((newY+25)/placeSize);
-			console.log("row " + firstPiece.row);
+			firstPiece.row = Math.ceil(newRow/placeSize);
+			firstPiece.column = Math.ceil(newColumn/placeSize);
+			console.log(firstPiece.row);
+			console.log(firstPiece.column);
 };
 
 function removePiece(firstPiece) {
@@ -180,6 +181,12 @@ function removePiece(firstPiece) {
 			ctx.stroke();
 			ctx.fill();
 };
+function centerMove() {
+	var newCoords = click[1];
+	var newX = Math.ceil(newCoords[1]/50) * 50,
+	newY = Math.ceil(newCoords[0]/50) * 50;
+	return [newX, newY]
+}
 // function whosTurn() {
 // 	if {}
 // }
