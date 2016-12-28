@@ -38,7 +38,7 @@ window.onload = function () {
 		coordY = coord[1];
 		var firstPiece = findPiece(coordX, coordY);
 		console.log(firstPiece);
-		removePiece(firstPiece);
+		//removePiece(firstPiece);
 		movePiece(firstPiece);
 		click = [];
 	};
@@ -158,15 +158,18 @@ function movePiece(firstPiece) {
 			var newCoords = centerMove();
 			var newRow = newCoords[1]-25;
 			var newColumn = newCoords[0]-25;
-			var color = firstPiece.color;
-			ctx.fillStyle = color;
-			ctx.beginPath();
-			ctx.arc(newRow, newColumn, 20, 0, 2 * Math.PI);
-			ctx.stroke();
-			ctx.fill();
-			removePiece(firstPiece);
-			firstPiece.row = Math.ceil(newColumn/placeSize);
-			firstPiece.column = Math.ceil(newRow/placeSize);
+			var isLegal = legalMove(firstPiece, newRow, newColumn);
+			if (isLegal) {
+				var color = firstPiece.color;
+				ctx.fillStyle = color;
+				ctx.beginPath();
+				ctx.arc(newRow, newColumn, 20, 0, 2 * Math.PI);
+				ctx.stroke();
+				ctx.fill();
+				removePiece(firstPiece);
+				firstPiece.row = Math.ceil(newColumn/placeSize);
+				firstPiece.column = Math.ceil(newRow/placeSize);
+			};
 			console.log(firstPiece.row);
 			console.log(firstPiece.column);
 };
@@ -187,6 +190,18 @@ function centerMove() {
 	newY = Math.ceil(newCoords[0]/50) * 50;
 	return [newX, newY]
 }
-// function whosTurn() {
-// 	if {}
-// }
+function legalMove(firstPiece, newRow, newColumn) {
+	var oldRow = firstPiece.row,
+	oldColumn = firstPiece.column,
+	nRow = Math.ceil(newColumn/placeSize),
+	nCol = Math.ceil(newRow/placeSize);
+	if (nRow - oldRow > 1) {
+		return false
+	}else {
+		if ( nCol - oldColumn > 1 || nCol - oldColumn < -1) {
+			return false;
+		}else{
+			return true;
+		};
+	};
+};
