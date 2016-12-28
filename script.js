@@ -201,13 +201,44 @@ function legalMove(firstPiece, newRow, newColumn) {
 	//new rows
 	nRow = Math.ceil(newColumn/placeSize),
 	nCol = Math.ceil(newRow/placeSize);
-	if (firstPiece.color == "yellow" && (nRow - oldRow) > (oldRow - nRow)) {
-		console.log("valid move");
-		return true;
-	}else if (firstPiece.color == "red" && (nRow - oldRow) < (oldRow - nRow)) {
-		console.log("valid move");
-		return true;
-	} else {
-		console.log("cant move more than one row, or backwards");
+	// loop through pieces and if any of their row and columns match
+	for (var i = 0; i < Pieces.length; i++) {
+		if (Pieces[i].row == nRow && Pieces[i].column == nCol) {
+			console.log("cant move where theres already a piece");
+			return false;
+		};
+	};
+	switch (firstPiece.color) {
+		case "red":
+			if ((nRow - oldRow) < (oldRow - nRow) && (nRow-oldRow == -1)) {
+				if (nCol - oldColumn > 1 || nCol - oldColumn < -1) {
+					console.log("only 1 column");
+					return false;
+				} else {
+					console.log("valid move");
+					return true;
+				}
+			} else {
+				console.log("cant go backwards or more than one row");
+				return false;
+			};
+			break;
+
+		case "yellow":
+			if ((nRow - oldRow) > (oldRow - nRow) && (nRow - oldRow == 1)) {
+				if (nCol - oldColumn > 1 || nCol - oldColumn < -1) {
+					console.log("only 1 column");
+					return false;
+				} else {
+					console.log("valid move");
+					return true;
+				}
+			} else {
+				console.log("cant go backwards or more than one row");
+				return false;
+			};
+			break;
+
+		default:
 	};
 };
