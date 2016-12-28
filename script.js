@@ -9,6 +9,7 @@ boardSize = placeSize*8;
 var whosTurn = 'black';
 var Pieces = new Array();
 var click = [];
+var isPiece = "";
 window.onload = function () {
 	var Pieces = new Array();
 	canvas.setAttribute('height', 400);
@@ -21,10 +22,12 @@ window.onload = function () {
 		coordX = coord[0],
 		coordY = coord[1];
 		var myPiece = findPiece(coord[0], coord[1]);
-		if(myPiece) {
-			color(myPiece);
-
-			}
+		if(isPiece) {
+			color(myPiece, "green");
+			isPiece = "";
+			} else {
+				isPiece = "";
+			};
 		// }else {
 		// 	movePiece(myPiece)
 		// };
@@ -37,10 +40,15 @@ window.onload = function () {
 		coordX = coord[0],
 		coordY = coord[1];
 		var firstPiece = findPiece(coordX, coordY);
-		console.log(firstPiece);
-		//removePiece(firstPiece);
-		movePiece(firstPiece);
-		click = [];
+		if (isPiece) {
+			isPiece = "";
+			movePiece(firstPiece);
+			click = [];
+		} else {
+			click = [];
+			isPiece = "";
+			return;
+		};
 	};
 
 };
@@ -119,8 +127,7 @@ function findClick() {
 		var canvasCoords = canvas.getBoundingClientRect();
 		var xClicked = event.clientX - canvasCoords.left;
 		var yClicked = event.clientY - canvasCoords.top;
-		console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
-		//findPiece(xClicked, yClicked);
+		// console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
 		return [xClicked, yClicked];
 };
 
@@ -133,25 +140,22 @@ function findPiece(xClicked, yClicked) {
 
 		//distance equation determines if clicked point is within circle
 			if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
-				console.log("within piece");
-				//changes color of clicked piece
-				//color(centerX, centerY);
-				//console.log(thisPiece);
+				isPiece = true;
 				return thisPiece;
 			} else { 
+				isPiece = false;
 				continue; }
 	}
 };
-function color(piece) {
-	if(piece){
+
+function color(piece, color) {
 		var x = (piece.column * placeSize) - 25;
 		var y = (piece.row * placeSize) - 25;
-		ctx.fillStyle = "green";
+		ctx.fillStyle = color;
 		ctx.beginPath();
 		ctx.arc(x, y, 20, 0, 2 * Math.PI);
 		ctx.stroke();
 		ctx.fill();
-	};
 };
 function movePiece(firstPiece) {
 	//gets coords of doubleclick and centers 
@@ -160,8 +164,7 @@ function movePiece(firstPiece) {
 			var newColumn = newCoords[0]-25;
 			var isLegal = legalMove(firstPiece, newRow, newColumn);
 			if (isLegal) {
-				var color = firstPiece.color;
-				ctx.fillStyle = color;
+				ctx.fillStyle = firstPiece.color;
 				ctx.beginPath();
 				ctx.arc(newRow, newColumn, 20, 0, 2 * Math.PI);
 				ctx.stroke();
@@ -169,14 +172,16 @@ function movePiece(firstPiece) {
 				removePiece(firstPiece);
 				firstPiece.row = Math.ceil(newColumn/placeSize);
 				firstPiece.column = Math.ceil(newRow/placeSize);
+			} else {
+				color(firstPiece, firstPiece.color);
+				return;
 			};
-			console.log(firstPiece.row);
-			console.log(firstPiece.column);
+			// console.log(firstPiece.row);
+			// console.log(firstPiece.column);
 };
 
 function removePiece(firstPiece) {
 		var centerX = (firstPiece.column * placeSize) - 25;
-		console.log(centerX);
 		var centerY = (firstPiece.row * placeSize) - 25;
 		ctx.fillStyle = "black";
 			ctx.beginPath();
@@ -193,15 +198,27 @@ function centerMove() {
 function legalMove(firstPiece, newRow, newColumn) {
 	var oldRow = firstPiece.row,
 	oldColumn = firstPiece.column,
+	//new rows
 	nRow = Math.ceil(newColumn/placeSize),
 	nCol = Math.ceil(newRow/placeSize);
-	if (nRow - oldRow > 1) {
-		return false
+	if (nRow - oldRow > 1 && firstPiece.color == "yellow") {
+		console.log("cant move more than one row");
+		// if (nRow - oldRow < -1) {
+		// 	console.log("cant move backwards");
+		// };
+		return false;
 	}else {
-		if ( nCol - oldColumn > 1 || nCol - oldColumn < -1) {
+		if (nRow - oldRow > -1 && firstPiece.color == "red") {
+			console.log("cant move backwards");
 			return false;
-		}else{
-			return true;
+		} else {
+			if ( nCol - oldColumn > 1 || nCol - oldColumn < -1) {
+				console.log("cant move more than one column in either direction");
+				return false;
+			}else{
+				console.log("valid move");
+				return true;
+			};
 		};
 	};
 };
