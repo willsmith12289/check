@@ -1,76 +1,207 @@
-$(document).ready(function()
-{
-	/**
-	*
-	*Creates the chess board
-	*
-	*/
-  $("#one td:odd").addClass('white');
-  $("#one td:even").addClass('black');
+var $ = function (id) {
+	return document.getElementById(id);
+};
 
-  $("#two td:even").addClass('white');
-  $("#two td:odd").addClass('black');
+var canvas = $("myCanvas"),
+ctx = canvas.getContext('2d'),
+placeSize = 50,
+boardSize = placeSize*8;
+var whosTurn = 'black';
+var Pieces = new Array();
+var click = [];
+window.onload = function () {
+	var Pieces = new Array();
+	canvas.setAttribute('height', 400);
+	canvas.setAttribute('width', 400);
+	drawBoard();
+	
+	canvas.onclick = function() {
+		click.push(findClick());
+		var coord = click[0],
+		coordX = coord[0],
+		coordY = coord[1];
+		var myPiece = findPiece(coord[0], coord[1]);
+		if(myPiece) {
+			color(myPiece);
 
-  $("#three td:odd").addClass('white');
-  $("#three td:even").addClass('black');
+			}
+		// }else {
+		// 	movePiece(myPiece)
+		// };
+	};
+		// var xClicked = coords[0];
+		// var yClicked = coords[1];
+		// findPiece(xClicked, yClicked);
+	canvas.ondblclick = function() {
+		var coord = click[0],
+		coordX = coord[0],
+		coordY = coord[1];
+		var firstPiece = findPiece(coordX, coordY);
+		console.log(firstPiece);
+		//removePiece(firstPiece);
+		movePiece(firstPiece);
+		click = [];
+	};
 
-  $("#four td:even").addClass('white');
-  $("#four td:odd").addClass('black');
+};
 
-  $("#five td:odd").addClass('white');
-  $("#five td:even").addClass('black');
+function piece(x,y,k,c) {
+	//used for keeping track of pieces on board
+	this.row = x;
+	this.column = y;
+	this.king = k;
+	this.color = c;
+};
 
-  $("#six td:even").addClass('white');
-  $("#six td:odd").addClass('black');
+function drawBoard () {
+	var ctx = canvas.getContext('2d');
+	for (var row = 0; row <= 8; row++) {
+		for (var column = 0; column <= 8; column++) {
+			var x = column * placeSize;
+			var y = row * placeSize;
 
-  $("#seven td:odd").addClass('white');
-  $("#seven td:even").addClass('black');
+			if (row % 2 == 0) {
+				if (column % 2 == 0) {
+					ctx.fillStyle = "black";
+				}
+				else {
+					ctx.fillStyle = "white";
+				}
+			} else {
+				if (column % 2 == 0) {
+					ctx.fillStyle = "white";
+				} else {
+					ctx.fillStyle = "black";
+				}
+			}
+  		ctx.fillRect(x, y, placeSize, placeSize);
+		}
+	}
+	makePieces();
+	drawPieces();
+};
 
-  $("#eight td:even").addClass('white');
-  $("#eight td:odd").addClass('black');
+function makePieces() {
+	//initializes pieces in rows and columns
+	for (var row = 1; row < 9; row++) {
+		for ( var column = 1; column < 9; column+=2) {
+			if (row < 4) {
+				if (row % 2 == 1) {
+					Pieces.push(new piece(row, column, false, "yellow"));
+				} else {
+					Pieces.push(new piece(row, column + 1, false, "yellow"));
+				}
+				
+			} else if (row > 5) {
+				if (row % 2 == 1) {
+					Pieces.push(new piece(row, column, false, "red"));
+				} else {
+					Pieces.push(new piece(row, column + 1, false, "red"));
+				}
+			};
+		};
+	};
+};
 
-/*
-**
-*adds class active to circle playing pieces
-*
-*/
-  $('.circle').click(function() {
-  	$('.active').removeClass('active');
-  	$(this).addClass('active');
-
-  })
-/*
-*
-*finds class(white or black)of cell origen and destination and only allows moves *if they are the same 
-*
-*/
-  $('td').click(function() {
-  	var cellClass = $('.active').parent().attr('class');
-    var firstIndex = $(this).index();
-      var indexP = firstIndex + 1;
-      var indexM = firstIndex - 1;
-      $('td').click(function() {
-        secIndex = $(this).index();
-        if(cellClass == $(this).attr('class')){
-          if (secIndex == indexP) {
-            $('.active').appendTo(this);
-            }else{
-              if (secIndex == indexM) {
-                $('.active').appendTo(this);
-              }
-            }  
-
-          }
-
-      });
-
-  });
-   $('.circle').click(function(){
-              if ($(this).attr('class') == ("circle")) {
-                $(this).remove();
-              }
-            });
+function drawPieces() {
+	for (var i = 0; i < Pieces.length; i++) {
+		ctx.beginPath();
+		ctx.arc((Pieces[i].column * placeSize) - 25, (Pieces[i].row * placeSize) - 25, 20, 0, 2 * Math.PI);
+		ctx.stroke();
+		var color = Pieces[i].color;
+		ctx.fillStyle = color;
+		ctx.fill();
+	};
+};
 
 
-});
+function findClick() {
+		var canvasCoords = canvas.getBoundingClientRect();
+		var xClicked = event.clientX - canvasCoords.left;
+		var yClicked = event.clientY - canvasCoords.top;
+		console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
+		//findPiece(xClicked, yClicked);
+		return [xClicked, yClicked];
+};
 
+function findPiece(xClicked, yClicked) {
+	var radius = 20;
+	for (var i = 0; i < Pieces.length; i++) {
+			var centerX = (Pieces[i].column * placeSize) - 25;
+			var centerY = (Pieces[i].row * placeSize) - 25;
+			var thisPiece = Pieces[i];
+
+		//distance equation determines if clicked point is within circle
+			if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
+				console.log("within piece");
+				//changes color of clicked piece
+				//color(centerX, centerY);
+				//console.log(thisPiece);
+				return thisPiece;
+			} else { 
+				continue; }
+	}
+};
+function color(piece) {
+	if(piece){
+		var x = (piece.column * placeSize) - 25;
+		var y = (piece.row * placeSize) - 25;
+		ctx.fillStyle = "green";
+		ctx.beginPath();
+		ctx.arc(x, y, 20, 0, 2 * Math.PI);
+		ctx.stroke();
+		ctx.fill();
+	};
+};
+function movePiece(firstPiece) {
+	//gets coords of doubleclick and centers 
+			var newCoords = centerMove();
+			var newRow = newCoords[1]-25;
+			var newColumn = newCoords[0]-25;
+			var isLegal = legalMove(firstPiece, newRow, newColumn);
+			if (isLegal) {
+				var color = firstPiece.color;
+				ctx.fillStyle = color;
+				ctx.beginPath();
+				ctx.arc(newRow, newColumn, 20, 0, 2 * Math.PI);
+				ctx.stroke();
+				ctx.fill();
+				removePiece(firstPiece);
+				firstPiece.row = Math.ceil(newColumn/placeSize);
+				firstPiece.column = Math.ceil(newRow/placeSize);
+			};
+			console.log(firstPiece.row);
+			console.log(firstPiece.column);
+};
+
+function removePiece(firstPiece) {
+		var centerX = (firstPiece.column * placeSize) - 25;
+		console.log(centerX);
+		var centerY = (firstPiece.row * placeSize) - 25;
+		ctx.fillStyle = "black";
+			ctx.beginPath();
+			ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.fill();
+};
+function centerMove() {
+	var newCoords = click[1];
+	var newX = Math.ceil(newCoords[1]/50) * 50,
+	newY = Math.ceil(newCoords[0]/50) * 50;
+	return [newX, newY]
+}
+function legalMove(firstPiece, newRow, newColumn) {
+	var oldRow = firstPiece.row,
+	oldColumn = firstPiece.column,
+	nRow = Math.ceil(newColumn/placeSize),
+	nCol = Math.ceil(newRow/placeSize);
+	if (nRow - oldRow > 1) {
+		return false
+	}else {
+		if ( nCol - oldColumn > 1 || nCol - oldColumn < -1) {
+			return false;
+		}else{
+			return true;
+		};
+	};
+};
