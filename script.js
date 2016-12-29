@@ -209,41 +209,33 @@ function legalMove(firstPiece, newRow, newColumn) {
 		};
 	};
 	//allow more than one row if theres a piece between them
-	if(nRow-oldRow == -2 || nCol - oldColumn > 2) {
+
+	if (nCol - oldColumn > 2) {
 		for (var i = 0; i < Pieces.length; i++) {
-			if (Pieces[i].row == (nRow +1) && Pieces[i].column == (nCol -1)) {
-				console.log("jumped a piece " + Pieces[i]);
-//remove drawing
-				removePiece(Pieces[i]);
-//remove from array
-				Pieces.splice(i,1);
-				return true;
-			} else if (Pieces[i].row == (nRow + 1) && Pieces[i].column == (nCol+1)) {
-					console.log("jumped a piece " + Pieces[i].row);
-//remove drawing
-					removePiece(Pieces[i]);
-//remove from array
-					Pieces.splice(i,1);
-					return true;
-	// 		} else if (Pieces[i].row == (nRow -1) && Pieces[i].column == (nCol -1)) {
-	// 			console.log("jumped a piece " + Pieces[i]);
-	// //remove drawing
-	// 			removePiece(Pieces[i]);
-	// //remove from array
-	// 			Pieces.splice(i,1);
-	// 			return true;
-	// 		} else if (Pieces[i].row == (nRow - 1) && Pieces[i].column == (nCol+1)) {
-	// 			console.log("jumped a piece " + Pieces[i].row);
-	// 	//remove drawing
-	// 			removePiece(Pieces[i]);
-	// 	//remove from array
-	// 			Pieces.splice(i,1);
-	// 			return true;
-			};
-		};
-	};
+
+		}
+	}
 	switch (firstPiece.color) {
 		case "red":
+			if(nRow-oldRow == -2) {
+				for (var i = 0; i < Pieces.length; i++) {
+					if (Pieces[i].row == (nRow +1) && Pieces[i].column == (nCol +1)) {
+						console.log("jumped a piece " + Pieces[i]);
+//remove drawing
+						removePiece(Pieces[i]);
+//remove from array
+						Pieces.splice(i,1);
+						return true;
+					} else if (Pieces[i].row == (nRow + 1) && Pieces[i].column == (nCol-1)) {
+						console.log("jumped a piece " + Pieces[i].row);
+//remove drawing
+						removePiece(Pieces[i]);
+//remove from array
+						Pieces.splice(i,1);
+						return true;
+					};
+				};
+			};
 				if ((nRow - oldRow) < (oldRow - nRow) && (nRow-oldRow == -1)) {
 					if (nCol - oldColumn > 1 || nCol - oldColumn < -1) {
 						console.log("only 1 column");
@@ -260,6 +252,25 @@ function legalMove(firstPiece, newRow, newColumn) {
 				break;
 
 		case "yellow":
+			if(nRow - oldRow == 2) {
+				for (var i = 0; i < Pieces.length; i++) {
+					if (Pieces[i].row == (nRow -1) && Pieces[i].column == (nCol -1)) {
+						console.log("jumped a piece " + Pieces[i]);
+//remove drawing
+						removePiece(Pieces[i]);
+//remove from array
+						Pieces.splice(i,1);
+						return true;
+					} else if (Pieces[i].row == (nRow - 1) && Pieces[i].column == (nCol+1)) {
+						console.log("jumped a piece " + Pieces[i].row);
+//remove drawing
+						removePiece(Pieces[i]);
+//remove from array
+						Pieces.splice(i,1);
+						return true;
+					};
+				};
+			};
 			if ((nRow - oldRow) > (oldRow - nRow) && (nRow - oldRow == 1)) {
 				if (nCol - oldColumn > 1 || nCol - oldColumn < -1) {
 					console.log("only 1 column");
