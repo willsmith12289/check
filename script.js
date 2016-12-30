@@ -4,8 +4,8 @@ var $ = function (id) {
 
 var canvas = $("myCanvas"),
 ctx = canvas.getContext('2d'),
-placeSize = 50,
-boardSize = placeSize*8;
+placeSize = 50;
+//boardSize = placeSize*8;
 var whos_turn = "yellow";
 var Pieces = new Array();
 var click = [];
@@ -290,6 +290,9 @@ function legalMove(firstPiece, newRow, newColumn) {
 						};
 					} else if (Pieces[i].row == (nRow - 1) && Pieces[i].column == (nCol+1)) {
 							if (Pieces[i].color == "red") {
+								if (Math.abs(Pieces[i].column - oldColumn)>2) {
+									continue;
+								} else {
 								console.log("jumped a piece " + Pieces[i].row);
 	//remove drawing
 								color(Pieces[i], "black");
@@ -297,6 +300,7 @@ function legalMove(firstPiece, newRow, newColumn) {
 								Pieces.splice(i,1);
 								return true;
 							};
+						};
 					};
 				};
 			};
@@ -353,5 +357,5 @@ function checkWin() {
 		alert("yellow wins");
 	} else if (yellow = 0) {
 		alert("red wins");
-	}
+	};
 }
