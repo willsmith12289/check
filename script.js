@@ -6,7 +6,7 @@ var canvas = $("myCanvas"),
 ctx = canvas.getContext('2d'),
 placeSize = 50,
 boardSize = placeSize*8;
-var whosTurn = 'black';
+var whos_turn = "yellow";
 var Pieces = new Array();
 var click = [];
 var isPiece = "";
@@ -15,7 +15,8 @@ window.onload = function () {
 	canvas.setAttribute('height', 400);
 	canvas.setAttribute('width', 400);
 	drawBoard();
-	
+	whosTurn();
+
 	canvas.onclick = function() {
 		click.push(findClick());
 		var coord = click[0],
@@ -23,18 +24,21 @@ window.onload = function () {
 		coordY = coord[1];
 		var myPiece = findPiece(coord[0], coord[1]);
 		if(isPiece) {
-			color(myPiece, "green");
-			isPiece = "";
+			if (whos_turn == myPiece.color) {
+				color(myPiece, "green");
+				whosTurn(whos_turn);
 			} else {
+				//console.log("not your turn")
+			}
+			isPiece = "";
+		} else {
 				isPiece = "";
-			};
+		};
 		// }else {
 		// 	movePiece(myPiece)
 		// };
 	};
-		// var xClicked = coords[0];
-		// var yClicked = coords[1];
-		// findPiece(xClicked, yClicked);
+
 	canvas.ondblclick = function() {
 		var coord = click[0],
 		coordX = coord[0],
@@ -156,28 +160,28 @@ function color(piece, color) {
 		ctx.arc(x, y, 20, 0, 2 * Math.PI);
 		ctx.stroke();
 		ctx.fill();
+		if (piece.king == true) {
+			var img = $('crown');
+			ctx.drawImage(img, x-20, y-10);
+		};
 };
 function movePiece(firstPiece) {
 	//gets coords of doubleclick and centers 
 			var newCoords = centerMove();
 			var newRow = newCoords[1]-25;
 			var newColumn = newCoords[0]-25;
+			
 			var isLegal = legalMove(firstPiece, newRow, newColumn);
 			if (isLegal) {
-				ctx.fillStyle = firstPiece.color;
-				ctx.beginPath();
-				ctx.arc(newRow, newColumn, 20, 0, 2 * Math.PI);
-				ctx.stroke();
-				ctx.fill();
+				isKing(firstPiece, newColumn);
 				removePiece(firstPiece);
 				firstPiece.row = Math.ceil(newColumn/placeSize);
 				firstPiece.column = Math.ceil(newRow/placeSize);
+				color(firstPiece, firstPiece.color);
 			} else {
 				color(firstPiece, firstPiece.color);
 				return;
 			};
-			// console.log(firstPiece.row);
-			// console.log(firstPiece.column);
 };
 
 function removePiece(firstPiece) {
@@ -201,48 +205,49 @@ function legalMove(firstPiece, newRow, newColumn) {
 	//new rows
 	nRow = Math.ceil(newColumn/placeSize),
 	nCol = Math.ceil(newRow/placeSize);
-	// loop through pieces and if any of their row and columns match
+	if (firstPiece.king) {
+		return true;
+	}
+	// loop through pieces and if any of their row and columns match return false
 	for (var i = 0; i < Pieces.length; i++) {
 		if (Pieces[i].row == nRow && Pieces[i].column == nCol) {
 			console.log("cant move where theres already a piece");
 			return false;
 		};
 	};
-	//allow more than one row if theres a piece between them
-
-	if (nCol - oldColumn > 2) {
-		for (var i = 0; i < Pieces.length; i++) {
-
-		}
-	}
 	switch (firstPiece.color) {
 		case "red":
+	//allow to move more than one space if jumping
 			if(nRow-oldRow == -2) {
 				for (var i = 0; i < Pieces.length; i++) {
 					if (Pieces[i].row == (nRow +1) && Pieces[i].column == (nCol +1)) {
-						console.log("jumped a piece " + Pieces[i]);
-//remove drawing
-						removePiece(Pieces[i]);
-//remove from array
-						Pieces.splice(i,1);
-						return true;
+						if (Pieces[i].color == "yellow") {
+							console.log("jumped a piece " + Pieces[i]);
+	//remove drawing
+							removePiece(Pieces[i]);
+	//remove from array
+							Pieces.splice(i,1);
+							return true;
+						}
 					} else if (Pieces[i].row == (nRow + 1) && Pieces[i].column == (nCol-1)) {
-						console.log("jumped a piece " + Pieces[i].row);
-//remove drawing
-						removePiece(Pieces[i]);
-//remove from array
-						Pieces.splice(i,1);
-						return true;
+						if (Pieces[i].color == "yellow") {
+							console.log("jumped a piece " + Pieces[i].row);
+	//remove drawing
+							removePiece(Pieces[i]);
+	//remove from array
+							Pieces.splice(i,1);
+							return true;
+						};
 					};
 				};
 			};
 				if ((nRow - oldRow) < (oldRow - nRow) && (nRow-oldRow == -1)) {
-					if (nCol - oldColumn > 1 || nCol - oldColumn < -1) {
-						console.log("only 1 column");
-						return false;
-					} else {
+					if (Math.abs(nCol - oldColumn) == 1) {
 						console.log("valid move");
 						return true;
+					} else {
+						console.log("only one column");
+						return false;
 					}
 				} else {
 	
@@ -252,32 +257,37 @@ function legalMove(firstPiece, newRow, newColumn) {
 				break;
 
 		case "yellow":
+	//allow move more than one space if jumping
 			if(nRow - oldRow == 2) {
 				for (var i = 0; i < Pieces.length; i++) {
 					if (Pieces[i].row == (nRow -1) && Pieces[i].column == (nCol -1)) {
-						console.log("jumped a piece " + Pieces[i]);
-//remove drawing
-						removePiece(Pieces[i]);
-//remove from array
-						Pieces.splice(i,1);
-						return true;
+						if (Pieces[i].color  == "red") {
+							console.log("jumped a piece " + Pieces[i]);
+	//remove drawing
+							removePiece(Pieces[i]);
+	//remove from array
+							Pieces.splice(i,1);
+							return true;
+						};
 					} else if (Pieces[i].row == (nRow - 1) && Pieces[i].column == (nCol+1)) {
-						console.log("jumped a piece " + Pieces[i].row);
-//remove drawing
-						removePiece(Pieces[i]);
-//remove from array
-						Pieces.splice(i,1);
-						return true;
+							if (Pieces[i].color == "red") {
+								console.log("jumped a piece " + Pieces[i].row);
+	//remove drawing
+								removePiece(Pieces[i]);
+	//remove from array
+								Pieces.splice(i,1);
+								return true;
+							};
 					};
 				};
 			};
 			if ((nRow - oldRow) > (oldRow - nRow) && (nRow - oldRow == 1)) {
-				if (nCol - oldColumn > 1 || nCol - oldColumn < -1) {
-					console.log("only 1 column");
-					return false;
-				} else {
+				if (Math.abs(nCol - oldColumn) == 1) {
 					console.log("valid move");
 					return true;
+				} else {
+					console.log("only 1 column");
+					return false;
 				}
 			} else {
 				console.log("cant go backwards or more than one row");
@@ -286,3 +296,26 @@ function legalMove(firstPiece, newRow, newColumn) {
 			break;
 	};
 };
+
+function whosTurn(color) {
+	if (color == "red") {
+		whos_turn = "yellow";
+	} else if (color == "yellow") {
+		whos_turn = "red";
+	};
+};
+
+function isKing(firstPiece, y) {
+		var newRow = Math.ceil(y/placeSize);
+		if ( firstPiece.color == "red" && newRow == 1) {
+			firstPiece.king = true;
+			//firstPiece.color = "gold";
+			console.log("kinged");
+			return;
+		} else if (firstPiece.color == "yellow" && newRow == 8) {
+			firstPiece.king = true;
+			//firstPiece.color = "gold";
+			console.log("kinged");
+			return;
+		};
+	};
