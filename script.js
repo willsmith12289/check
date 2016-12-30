@@ -174,25 +174,30 @@ function movePiece(firstPiece) {
 			var isLegal = legalMove(firstPiece, newRow, newColumn);
 			if (isLegal) {
 				isKing(firstPiece, newColumn);
-				removePiece(firstPiece);
+//black out old shape position
+				color(firstPiece, "black");
+//reassign row and column of moved piece
 				firstPiece.row = Math.ceil(newColumn/placeSize);
 				firstPiece.column = Math.ceil(newRow/placeSize);
+//redraw shape in new position
 				color(firstPiece, firstPiece.color);
 			} else {
+//allow to keep turn if move is not legal
+				whos_turn = firstPiece.color;
 				color(firstPiece, firstPiece.color);
 				return;
 			};
 };
 
-function removePiece(firstPiece) {
-		var centerX = (firstPiece.column * placeSize) - 25;
-		var centerY = (firstPiece.row * placeSize) - 25;
-		ctx.fillStyle = "black";
-			ctx.beginPath();
-			ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
-			ctx.stroke();
-			ctx.fill();
-};
+// function removePiece(firstPiece) {
+// 		var centerX = (firstPiece.column * placeSize) - 25;
+// 		var centerY = (firstPiece.row * placeSize) - 25;
+// 		ctx.fillStyle = "black";
+// 			ctx.beginPath();
+// 			ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+// 			ctx.stroke();
+// 			ctx.fill();
+// };
 function centerMove() {
 	var newCoords = click[1];
 	var newX = Math.ceil(newCoords[1]/50) * 50,
@@ -206,7 +211,29 @@ function legalMove(firstPiece, newRow, newColumn) {
 	nRow = Math.ceil(newColumn/placeSize),
 	nCol = Math.ceil(newRow/placeSize);
 	if (firstPiece.king) {
-		return true;
+		if (nRow == oldRow || nCol == oldColumn) {
+			console.log("can only move diagonally");
+			return false;
+		}else {
+			var cDiff = oldColumn - nCol;
+			var rDiff = oldRow - nRow;
+			var cTemp = oldColumn;
+			var rTemp = oldRow;
+			for (var i = 0; i < Math.abs(cDiff); i++) {
+				cTemp -= cDiff/Math.abs(cDiff);
+				rTemp -= rDiff/Math.abs(rDiff);
+				for (var j = 0; j < Pieces.length; j++) {
+					if ((Pieces[j].column == cTemp) && (Pieces[j].row == rTemp)) {
+						if (Pieces[j].color != firstPiece.color) {
+							color(Pieces[j], "black");
+							Pieces.splice(j,1);
+							
+						};
+					};
+				};
+			};
+			return true;
+		}
 	}
 	// loop through pieces and if any of their row and columns match return false
 	for (var i = 0; i < Pieces.length; i++) {
@@ -224,7 +251,7 @@ function legalMove(firstPiece, newRow, newColumn) {
 						if (Pieces[i].color == "yellow") {
 							console.log("jumped a piece " + Pieces[i]);
 	//remove drawing
-							removePiece(Pieces[i]);
+							color(Pieces[i], "black");
 	//remove from array
 							Pieces.splice(i,1);
 							return true;
@@ -233,7 +260,7 @@ function legalMove(firstPiece, newRow, newColumn) {
 						if (Pieces[i].color == "yellow") {
 							console.log("jumped a piece " + Pieces[i].row);
 	//remove drawing
-							removePiece(Pieces[i]);
+							color(Pieces[i], "black");
 	//remove from array
 							Pieces.splice(i,1);
 							return true;
@@ -264,7 +291,7 @@ function legalMove(firstPiece, newRow, newColumn) {
 						if (Pieces[i].color  == "red") {
 							console.log("jumped a piece " + Pieces[i]);
 	//remove drawing
-							removePiece(Pieces[i]);
+							color(Pieces[i], "black");
 	//remove from array
 							Pieces.splice(i,1);
 							return true;
@@ -273,7 +300,7 @@ function legalMove(firstPiece, newRow, newColumn) {
 							if (Pieces[i].color == "red") {
 								console.log("jumped a piece " + Pieces[i].row);
 	//remove drawing
-								removePiece(Pieces[i]);
+								color(Pieces[i], "black");
 	//remove from array
 								Pieces.splice(i,1);
 								return true;
