@@ -4,43 +4,55 @@ var $ = function (id) {
 
 var canvas = $("myCanvas"),
 ctx = canvas.getContext('2d'),
-placeSize = 50,
-boardSize = placeSize*8;
-var whosTurn = 'black';
+placeSize = 50;
+//boardSize = placeSize*8;
+var whos_turn = "yellow";
 var Pieces = new Array();
 var click = [];
+var isPiece = "";
 window.onload = function () {
 	var Pieces = new Array();
 	canvas.setAttribute('height', 400);
 	canvas.setAttribute('width', 400);
 	drawBoard();
-	
+	whosTurn();
+
 	canvas.onclick = function() {
 		click.push(findClick());
 		var coord = click[0],
 		coordX = coord[0],
 		coordY = coord[1];
 		var myPiece = findPiece(coord[0], coord[1]);
-		if(myPiece) {
-			color(myPiece);
-
+		if(isPiece) {
+			if (whos_turn == myPiece.color) {
+				color(myPiece, "green");
+				whosTurn(whos_turn);
+			} else {
+				//console.log("not your turn")
 			}
+			isPiece = "";
+		} else {
+				isPiece = "";
+		};
 		// }else {
 		// 	movePiece(myPiece)
 		// };
 	};
-		// var xClicked = coords[0];
-		// var yClicked = coords[1];
-		// findPiece(xClicked, yClicked);
+
 	canvas.ondblclick = function() {
 		var coord = click[0],
 		coordX = coord[0],
 		coordY = coord[1];
 		var firstPiece = findPiece(coordX, coordY);
-		console.log(firstPiece);
-		//removePiece(firstPiece);
-		movePiece(firstPiece);
-		click = [];
+		if (isPiece) {
+			isPiece = "";
+			movePiece(firstPiece);
+			click = [];
+		} else {
+			click = [];
+			isPiece = "";
+			return;
+		};
 	};
 
 };
@@ -119,8 +131,7 @@ function findClick() {
 		var canvasCoords = canvas.getBoundingClientRect();
 		var xClicked = event.clientX - canvasCoords.left;
 		var yClicked = event.clientY - canvasCoords.top;
-		console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
-		//findPiece(xClicked, yClicked);
+		// console.log("xclicked:" + xClicked, "yclicked:" + yClicked);
 		return [xClicked, yClicked];
 };
 
@@ -133,57 +144,52 @@ function findPiece(xClicked, yClicked) {
 
 		//distance equation determines if clicked point is within circle
 			if (Math.sqrt((centerX - xClicked) * (centerX - xClicked) + (centerY - yClicked) * (centerY - yClicked)) < radius) {
-				console.log("within piece");
-				//changes color of clicked piece
-				//color(centerX, centerY);
-				//console.log(thisPiece);
+				isPiece = true;
 				return thisPiece;
 			} else { 
+				isPiece = false;
 				continue; }
 	}
 };
-function color(piece) {
-	if(piece){
+
+function color(piece, color) {
 		var x = (piece.column * placeSize) - 25;
 		var y = (piece.row * placeSize) - 25;
-		ctx.fillStyle = "green";
+		ctx.fillStyle = color;
 		ctx.beginPath();
 		ctx.arc(x, y, 20, 0, 2 * Math.PI);
 		ctx.stroke();
 		ctx.fill();
-	};
+		if (piece.king == true) {
+			var img = $('crown');
+			ctx.drawImage(img, x-20, y-10);
+		};
 };
 function movePiece(firstPiece) {
 	//gets coords of doubleclick and centers 
 			var newCoords = centerMove();
 			var newRow = newCoords[1]-25;
 			var newColumn = newCoords[0]-25;
+			
 			var isLegal = legalMove(firstPiece, newRow, newColumn);
 			if (isLegal) {
-				var color = firstPiece.color;
-				ctx.fillStyle = color;
-				ctx.beginPath();
-				ctx.arc(newRow, newColumn, 20, 0, 2 * Math.PI);
-				ctx.stroke();
-				ctx.fill();
-				removePiece(firstPiece);
+				isKing(firstPiece, newColumn);
+	//black out old shape position
+				color(firstPiece, "black");
+	//reassign row and column of moved piece
 				firstPiece.row = Math.ceil(newColumn/placeSize);
 				firstPiece.column = Math.ceil(newRow/placeSize);
+	//redraw shape in new position
+				color(firstPiece, firstPiece.color);
+				checkWin();
+			} else {
+	//allow to keep turn if move is not legal
+				whos_turn = firstPiece.color;
+				color(firstPiece, firstPiece.color);
+				return;
 			};
-			console.log(firstPiece.row);
-			console.log(firstPiece.column);
 };
 
-function removePiece(firstPiece) {
-		var centerX = (firstPiece.column * placeSize) - 25;
-		console.log(centerX);
-		var centerY = (firstPiece.row * placeSize) - 25;
-		ctx.fillStyle = "black";
-			ctx.beginPath();
-			ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
-			ctx.stroke();
-			ctx.fill();
-};
 function centerMove() {
 	var newCoords = click[1];
 	var newX = Math.ceil(newCoords[1]/50) * 50,
@@ -193,15 +199,163 @@ function centerMove() {
 function legalMove(firstPiece, newRow, newColumn) {
 	var oldRow = firstPiece.row,
 	oldColumn = firstPiece.column,
+	//new rows
 	nRow = Math.ceil(newColumn/placeSize),
 	nCol = Math.ceil(newRow/placeSize);
-	if (nRow - oldRow > 1) {
-		return false
-	}else {
-		if ( nCol - oldColumn > 1 || nCol - oldColumn < -1) {
+	if (firstPiece.king) {
+		if (nRow == oldRow || nCol == oldColumn) {
+			console.log("can only move diagonally");
 			return false;
-		}else{
+		}else {
+			var cDiff = oldColumn - nCol;
+			var rDiff = oldRow - nRow;
+			var cTemp = oldColumn;
+			var rTemp = oldRow;
+			for (var i = 0; i < Math.abs(cDiff); i++) {
+				cTemp -= cDiff/Math.abs(cDiff);
+				rTemp -= rDiff/Math.abs(rDiff);
+				for (var j = 0; j < Pieces.length; j++) {
+					if ((Pieces[j].column == cTemp) && (Pieces[j].row == rTemp)) {
+						if (Pieces[j].color != firstPiece.color) {
+							color(Pieces[j], "black");
+							Pieces.splice(j,1);
+							
+						};
+					};
+				};
+			};
 			return true;
+		}
+	}
+	// loop through pieces and if any of their row and columns match return false
+	for (var i = 0; i < Pieces.length; i++) {
+		if (Pieces[i].row == nRow && Pieces[i].column == nCol) {
+			console.log("cant move where theres already a piece");
+			return false;
 		};
 	};
+	switch (firstPiece.color) {
+		case "red":
+	//allow to move more than one space if jumping
+			if(nRow-oldRow == -2) {
+				for (var i = 0; i < Pieces.length; i++) {
+					if (Pieces[i].row == (nRow +1) && Pieces[i].column == (nCol +1)) {
+						if (Pieces[i].color == "yellow") {
+							console.log("jumped a piece " + Pieces[i]);
+	//remove drawing
+							color(Pieces[i], "black");
+	//remove from array
+							Pieces.splice(i,1);
+							return true;
+						}
+					} else if (Pieces[i].row == (nRow + 1) && Pieces[i].column == (nCol-1)) {
+						if (Pieces[i].color == "yellow") {
+							console.log("jumped a piece " + Pieces[i].row);
+	//remove drawing
+							color(Pieces[i], "black");
+	//remove from array
+							Pieces.splice(i,1);
+							return true;
+						};
+					};
+				};
+			};
+				if ((nRow - oldRow) < (oldRow - nRow) && (nRow-oldRow == -1)) {
+					if (Math.abs(nCol - oldColumn) == 1) {
+						console.log("valid move");
+						return true;
+					} else {
+						console.log("only one column");
+						return false;
+					}
+				} else {
+	
+					console.log("cant go backwards or more than one row");
+					return false;
+				};
+				break;
+
+		case "yellow":
+	//allow move more than one space if jumping
+			if(nRow - oldRow == 2) {
+				for (var i = 0; i < Pieces.length; i++) {
+					if (Pieces[i].row == (nRow -1) && Pieces[i].column == (nCol -1)) {
+						if (Pieces[i].color  == "red") {
+							console.log("jumped a piece " + Pieces[i]);
+	//remove drawing
+							color(Pieces[i], "black");
+	//remove from array
+							Pieces.splice(i,1);
+							return true;
+						};
+					} else if (Pieces[i].row == (nRow - 1) && Pieces[i].column == (nCol+1)) {
+							if (Pieces[i].color == "red") {
+								if (Math.abs(Pieces[i].column - oldColumn)>2) {
+									continue;
+								} else {
+								console.log("jumped a piece " + Pieces[i].row);
+	//remove drawing
+								color(Pieces[i], "black");
+	//remove from array
+								Pieces.splice(i,1);
+								return true;
+							};
+						};
+					};
+				};
+			};
+			if ((nRow - oldRow) > (oldRow - nRow) && (nRow - oldRow == 1)) {
+				if (Math.abs(nCol - oldColumn) == 1) {
+					console.log("valid move");
+					return true;
+				} else {
+					console.log("only 1 column");
+					return false;
+				}
+			} else {
+				console.log("cant go backwards or more than one row");
+				return false;
+			};
+			break;
+	};
 };
+
+function whosTurn(color) {
+	if (color == "red") {
+		whos_turn = "yellow";
+	} else if (color == "yellow") {
+		whos_turn = "red";
+	};
+};
+
+function isKing(firstPiece, y) {
+		var newRow = Math.ceil(y/placeSize);
+		if ( firstPiece.color == "red" && newRow == 1) {
+			firstPiece.king = true;
+			//firstPiece.color = "gold";
+			console.log("kinged");
+			return;
+		} else if (firstPiece.color == "yellow" && newRow == 8) {
+			firstPiece.king = true;
+			//firstPiece.color = "gold";
+			console.log("kinged");
+			return;
+		};
+	};
+
+function checkWin() {
+	var red = 0;
+	var yellow = 0
+	for (var i = 0; i < Pieces.length; i++) {
+		if (Pieces[i].color == "red") {
+			red+=1
+		} else if (Pieces[i].color == "yellow") {
+			yellow+=1
+		};
+	};
+	if (red == 0) {
+		alert("yellow wins");
+	} else if (yellow = 0) {
+		alert("red wins");
+	};
+}
