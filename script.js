@@ -174,30 +174,22 @@ function movePiece(firstPiece) {
 			var isLegal = legalMove(firstPiece, newRow, newColumn);
 			if (isLegal) {
 				isKing(firstPiece, newColumn);
-//black out old shape position
+	//black out old shape position
 				color(firstPiece, "black");
-//reassign row and column of moved piece
+	//reassign row and column of moved piece
 				firstPiece.row = Math.ceil(newColumn/placeSize);
 				firstPiece.column = Math.ceil(newRow/placeSize);
-//redraw shape in new position
+	//redraw shape in new position
 				color(firstPiece, firstPiece.color);
+				checkWin();
 			} else {
-//allow to keep turn if move is not legal
+	//allow to keep turn if move is not legal
 				whos_turn = firstPiece.color;
 				color(firstPiece, firstPiece.color);
 				return;
 			};
 };
 
-// function removePiece(firstPiece) {
-// 		var centerX = (firstPiece.column * placeSize) - 25;
-// 		var centerY = (firstPiece.row * placeSize) - 25;
-// 		ctx.fillStyle = "black";
-// 			ctx.beginPath();
-// 			ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
-// 			ctx.stroke();
-// 			ctx.fill();
-// };
 function centerMove() {
 	var newCoords = click[1];
 	var newX = Math.ceil(newCoords[1]/50) * 50,
@@ -346,3 +338,20 @@ function isKing(firstPiece, y) {
 			return;
 		};
 	};
+
+function checkWin() {
+	var red = 0;
+	var yellow = 0
+	for (var i = 0; i < Pieces.length; i++) {
+		if (Pieces[i].color == "red") {
+			red+=1
+		} else if (Pieces[i].color == "yellow") {
+			yellow+=1
+		};
+	};
+	if (red == 0) {
+		alert("yellow wins");
+	} else if (yellow = 0) {
+		alert("red wins");
+	}
+}
